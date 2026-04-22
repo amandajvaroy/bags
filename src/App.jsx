@@ -94,18 +94,16 @@ function randomPositions() {
   })
 }
 
-function BagItem({ src, alt, displayWidth, top, left, rotate, isVisible, index, message }) {
+function BagItem({ src, alt, displayWidth, top, left, rotate, isVisible, index, message, onZoom }) {
   const [clicked, setClicked]   = useState(false)
   const [showMsg, setShowMsg]   = useState(false)
-  const [zoomed, setZoomed]     = useState(false)
   const timerRef                = useRef(null)
   const isMobile                = window.innerWidth < 768
 
-  // Skjul melding + zoom når vesken lukkes
+  // Skjul melding når vesken lukkes
   useEffect(() => {
     if (!isVisible) {
       setShowMsg(false)
-      setZoomed(false)
       clearTimeout(timerRef.current)
     }
   }, [isVisible])
@@ -117,7 +115,7 @@ function BagItem({ src, alt, displayWidth, top, left, rotate, isVisible, index, 
 
   function handleClick() {
     if (isMobile) {
-      setZoomed(z => !z)
+      onZoom({ src, alt, displayWidth, message })
     } else {
       setClicked(true)
       if (message) {
@@ -130,28 +128,6 @@ function BagItem({ src, alt, displayWidth, top, left, rotate, isVisible, index, 
 
   return (
     <div className="absolute" style={{ top, left }}>
-
-      {/* Mobil: zoom-overlay */}
-      {zoomed && (
-        <div
-          className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/40 animate-fade-in"
-          onClick={() => setZoomed(false)}
-        >
-          <img
-            src={src}
-            alt={alt}
-            className="drop-shadow-2xl"
-            style={{ width: `${Math.min(displayWidth * 2.5, window.innerWidth * 0.8)}px` }}
-            onClick={e => e.stopPropagation()}
-          />
-          {message && (
-            <p className="mt-4 bg-white rounded-2xl px-5 py-3 text-sm text-stone-700 tracking-wide shadow-md">
-              {message}
-            </p>
-          )}
-        </div>
-      )}
-
       {/* Meldingsboble (desktop) */}
       {showMsg && (() => {
         const above = topVal > 50
@@ -204,8 +180,9 @@ function BagItem({ src, alt, displayWidth, top, left, rotate, isVisible, index, 
 }
 
 export default function App() {
-  const [isOpen, setIsOpen] = useState(false)
-  const [items, setItems]   = useState(randomPositions)
+  const [isOpen, setIsOpen]     = useState(false)
+  const [items, setItems]       = useState(randomPositions)
+  const [zoomedItem, setZoomedItem] = useState(null)
 
   const isMobile   = window.innerWidth < 768
   const bagSize    = isMobile ? Math.round(window.innerWidth * 0.55) : 384
@@ -224,6 +201,7 @@ export default function App() {
       })
     } else {
       setIsOpen(false)
+      setZoomedItem(null)
     }
   }
 
@@ -235,9 +213,29 @@ export default function App() {
         Dette har jeg i vesken
       </p>
 
+      {/* Mobil zoom-overlay — på toppnivå så fixed fungerer riktig */}
+      {zoomedItem && (
+        <div
+          className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/50 animate-fade-in"
+          onClick={() => setZoomedItem(null)}
+        >
+          <img
+            src={zoomedItem.src}
+            alt={zoomedItem.alt}
+            className="drop-shadow-2xl"
+            style={{ width: `${Math.min(zoomedItem.displayWidth * 2.5, window.innerWidth * 0.78)}px` }}
+          />
+          {zoomedItem.message && (
+            <p className="mt-5 bg-white rounded-2xl px-5 py-3 text-sm text-stone-700 tracking-wide shadow-md">
+              {zoomedItem.message}
+            </p>
+          )}
+        </div>
+      )}
+
       {/* Produkter */}
       {items.map((item, i) => (
-        <BagItem key={item.id} {...item} isVisible={isOpen} index={i} />
+        <BagItem key={item.id} {...item} isVisible={isOpen} index={i} onZoom={setZoomedItem} />
       ))}
 
       {/* Veske */}
