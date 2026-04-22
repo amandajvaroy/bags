@@ -3,7 +3,7 @@ import veske from './assets/veske.png'
 import './index.css'
 
 import Boot      from './assets/boot.png'
-import Bringebær from './assets/bringebær.png'
+import Bringebær from './assets/bringebaer.png'
 import Solbriller from './assets/solbriller.png'
 import Cowboyhat  from './assets/cowboyhat.png'
 import Dermo     from './assets/Dermo.png'
