@@ -42,7 +42,7 @@ const baseItems = [
 ]
 
 function getScale() {
-  return Math.min(1, window.innerWidth / 1100)
+  return Math.min(1, window.innerWidth / 750)
 }
 
 function randomPositions() {
@@ -97,12 +97,15 @@ function randomPositions() {
 function BagItem({ src, alt, displayWidth, top, left, rotate, isVisible, index, message }) {
   const [clicked, setClicked]   = useState(false)
   const [showMsg, setShowMsg]   = useState(false)
+  const [zoomed, setZoomed]     = useState(false)
   const timerRef                = useRef(null)
+  const isMobile                = window.innerWidth < 768
 
-  // Skjul melding når vesken lukkes
+  // Skjul melding + zoom når vesken lukkes
   useEffect(() => {
     if (!isVisible) {
       setShowMsg(false)
+      setZoomed(false)
       clearTimeout(timerRef.current)
     }
   }, [isVisible])
@@ -113,17 +116,43 @@ function BagItem({ src, alt, displayWidth, top, left, rotate, isVisible, index, 
   const offsetY = `calc(50vh - ${topVal}vh)`
 
   function handleClick() {
-    setClicked(true)
-    if (message) {
-      setShowMsg(true)
-      clearTimeout(timerRef.current)
-      timerRef.current = setTimeout(() => setShowMsg(false), 5000)
+    if (isMobile) {
+      setZoomed(z => !z)
+    } else {
+      setClicked(true)
+      if (message) {
+        setShowMsg(true)
+        clearTimeout(timerRef.current)
+        timerRef.current = setTimeout(() => setShowMsg(false), 5000)
+      }
     }
   }
 
   return (
     <div className="absolute" style={{ top, left }}>
-      {/* Meldingsboble */}
+
+      {/* Mobil: zoom-overlay */}
+      {zoomed && (
+        <div
+          className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/40 animate-fade-in"
+          onClick={() => setZoomed(false)}
+        >
+          <img
+            src={src}
+            alt={alt}
+            className="drop-shadow-2xl"
+            style={{ width: `${Math.min(displayWidth * 2.5, window.innerWidth * 0.8)}px` }}
+            onClick={e => e.stopPropagation()}
+          />
+          {message && (
+            <p className="mt-4 bg-white rounded-2xl px-5 py-3 text-sm text-stone-700 tracking-wide shadow-md">
+              {message}
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* Meldingsboble (desktop) */}
       {showMsg && (() => {
         const above = topVal > 50
         return (
