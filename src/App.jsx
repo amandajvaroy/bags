@@ -179,6 +179,44 @@ function BagItem({ src, alt, displayWidth, top, left, rotate, isVisible, index, 
   )
 }
 
+function ZoomOverlay({ item, onClose }) {
+  const [wiggle, setWiggle] = useState(false)
+  const imgSize = Math.min(item.displayWidth * 2.5, window.innerWidth * 0.78)
+
+  return (
+    <div
+      className="fixed z-50 animate-fade-in"
+      style={{ inset: 0, backgroundColor: 'rgba(0,0,0,0.08)' }}
+      onClick={onClose}
+    >
+      {/* Sentrert innhold */}
+      <div
+        className="absolute flex flex-col items-center"
+        style={{
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+        }}
+        onClick={e => e.stopPropagation()}
+      >
+        <img
+          src={item.src}
+          alt={item.alt}
+          className={`drop-shadow-2xl cursor-pointer ${wiggle ? 'item-wiggle' : ''}`}
+          style={{ width: `${imgSize}px` }}
+          onClick={() => setWiggle(true)}
+          onAnimationEnd={() => setWiggle(false)}
+        />
+        {item.message && (
+          <p className="mt-4 bg-white rounded-2xl px-5 py-3 text-sm text-stone-700 tracking-wide shadow-md whitespace-nowrap">
+            {item.message}
+          </p>
+        )}
+      </div>
+    </div>
+  )
+}
+
 export default function App() {
   const [isOpen, setIsOpen]     = useState(false)
   const [items, setItems]       = useState(randomPositions)
@@ -213,25 +251,8 @@ export default function App() {
         Dette har jeg i vesken
       </p>
 
-      {/* Mobil zoom-overlay — på toppnivå så fixed fungerer riktig */}
-      {zoomedItem && (
-        <div
-          className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/50 animate-fade-in"
-          onClick={() => setZoomedItem(null)}
-        >
-          <img
-            src={zoomedItem.src}
-            alt={zoomedItem.alt}
-            className="drop-shadow-2xl"
-            style={{ width: `${Math.min(zoomedItem.displayWidth * 2.5, window.innerWidth * 0.78)}px` }}
-          />
-          {zoomedItem.message && (
-            <p className="mt-5 bg-white rounded-2xl px-5 py-3 text-sm text-stone-700 tracking-wide shadow-md">
-              {zoomedItem.message}
-            </p>
-          )}
-        </div>
-      )}
+      {/* Mobil zoom-overlay */}
+      {zoomedItem && <ZoomOverlay item={zoomedItem} onClose={() => setZoomedItem(null)} />}
 
       {/* Produkter */}
       {items.map((item, i) => (
