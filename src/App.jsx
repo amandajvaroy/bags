@@ -190,7 +190,7 @@ function ZoomOverlay({ item, onClose }) {
         position: 'fixed',
         inset: 0,
         zIndex: 9999,
-        backgroundColor: 'rgba(0,0,0,0.08)',
+        backgroundColor: 'rgba(0,0,0,0.15)',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
