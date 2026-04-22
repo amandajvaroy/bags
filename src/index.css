@@ -1,1 +1,31 @@
 @import "tailwindcss";
+
+.grid-bg {
+  background-color: #f0ebe0;
+  background-image:
+    linear-gradient(rgba(180, 170, 155, 0.25) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(180, 170, 155, 0.25) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+.item-wiggle {
+  animation: wiggle 0.4s ease-in-out forwards;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(4px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.2s ease-out forwards;
+}
+
+@keyframes wiggle {
+  0%   { transform: rotate(var(--r, 0deg)) scale(1); }
+  20%  { transform: rotate(calc(var(--r, 0deg) - 10deg)) scale(1.12); }
+  40%  { transform: rotate(calc(var(--r, 0deg) + 10deg)) scale(1.12); }
+  60%  { transform: rotate(calc(var(--r, 0deg) - 6deg)) scale(1.06); }
+  80%  { transform: rotate(calc(var(--r, 0deg) + 4deg)) scale(1.03); }
+  100% { transform: rotate(var(--r, 0deg)) scale(1); }
+}
