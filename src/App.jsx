@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import veske from './assets/veske.png'
 import './index.css'
 
@@ -183,37 +184,39 @@ function ZoomOverlay({ item, onClose }) {
   const [wiggle, setWiggle] = useState(false)
   const imgSize = Math.min(item.displayWidth * 2.5, window.innerWidth * 0.78)
 
-  return (
+  return createPortal(
     <div
-      className="fixed z-50 animate-fade-in"
-      style={{ inset: 0, backgroundColor: 'rgba(0,0,0,0.08)' }}
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 9999,
+        backgroundColor: 'rgba(0,0,0,0.08)',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
       onClick={onClose}
     >
-      {/* Sentrert innhold */}
-      <div
-        className="absolute flex flex-col items-center"
-        style={{
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-        }}
-        onClick={e => e.stopPropagation()}
-      >
-        <img
-          src={item.src}
-          alt={item.alt}
-          className={`drop-shadow-2xl cursor-pointer ${wiggle ? 'item-wiggle' : ''}`}
-          style={{ width: `${imgSize}px` }}
-          onClick={() => setWiggle(true)}
-          onAnimationEnd={() => setWiggle(false)}
-        />
-        {item.message && (
-          <p className="mt-4 bg-white rounded-2xl px-5 py-3 text-sm text-stone-700 tracking-wide shadow-md whitespace-nowrap">
-            {item.message}
-          </p>
-        )}
-      </div>
-    </div>
+      <img
+        src={item.src}
+        alt={item.alt}
+        className={`drop-shadow-2xl cursor-pointer ${wiggle ? 'item-wiggle' : ''}`}
+        style={{ width: `${imgSize}px` }}
+        onClick={e => { e.stopPropagation(); setWiggle(true) }}
+        onAnimationEnd={() => setWiggle(false)}
+      />
+      {item.message && (
+        <p
+          style={{ marginTop: '1rem' }}
+          className="bg-white rounded-2xl px-5 py-3 text-sm text-stone-700 tracking-wide shadow-md whitespace-nowrap"
+          onClick={e => e.stopPropagation()}
+        >
+          {item.message}
+        </p>
+      )}
+    </div>,
+    document.body
   )
 }
 
